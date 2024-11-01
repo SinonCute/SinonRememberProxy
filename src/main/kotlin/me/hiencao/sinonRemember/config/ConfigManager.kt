@@ -27,7 +27,7 @@ object ConfigManager {
     }
 
     private fun generateDefaultFile(fileName: String) {
-       if (plugin.dataFolder.exists()) {
+       if (!plugin.dataFolder.exists()) {
            plugin.dataFolder.mkdirs()
        }
 

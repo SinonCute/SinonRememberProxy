@@ -21,7 +21,7 @@ object DataManager {
                 RedisStorage(plugin)
             }
         }
-
+        plugin.logger.info("Using ${ConfigManager.storageType} storage provider")
         storageProvider.load()
     }
 

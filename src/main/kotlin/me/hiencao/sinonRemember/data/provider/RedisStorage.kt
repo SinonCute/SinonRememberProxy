@@ -14,7 +14,21 @@ class RedisStorage(override val plugin: SinonRemember) : StorageProvider {
     override fun load() {
         val config = ConfigManager.redisConfig
 
-        pool = JedisPool(config.host, config.port, "", config.password)
+        pool = JedisPool(config.host, config.port)
+        if (config.password.isNotEmpty()) {
+            pool.resource.use { jedis ->
+                jedis.auth(config.password)
+            }
+        }
+
+        pool.resource.use { jedis ->
+            val res = jedis.ping();
+            if (res != "PONG") {
+                throw IllegalStateException("Failed to connect to Redis server")
+            } else {
+                plugin.logger.info("Connected to Redis server")
+            }
+        }
     }
 
     override fun insertData(uuid: String, group: String, server: String) {

@@ -1,5 +1,6 @@
 package me.hiencao.sinonRemember
 
+import me.hiencao.sinonRemember.command.MainCommand
 import me.hiencao.sinonRemember.config.ConfigManager
 import me.hiencao.sinonRemember.data.DataManager
 import me.hiencao.sinonRemember.listener.ProxyListener
@@ -18,6 +19,7 @@ class SinonRemember : Plugin() {
         ConfigManager.init(this)
         DataManager.init(this)
         proxy.pluginManager.registerListener(this, ProxyListener())
+        proxy.pluginManager.registerCommand(this, MainCommand("sinonremember"))
     }
 
     override fun onDisable() {
