@@ -8,17 +8,15 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    maven("https://oss.sonatype.org/content/groups/public/") {
-        name = "sonatype"
-    }
+    maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
     implementation("redis.clients:jedis:5.2.0")
-    compileOnly("net.md-5:bungeecord-api:1.21-R0.1-SNAPSHOT")
+    compileOnly("io.github.waterfallmc:waterfall-api:1.20-R0.3-SNAPSHOT")
 }
 
-val targetJavaVersion = 8
+val targetJavaVersion = 17
 kotlin {
     jvmToolchain(targetJavaVersion)
 }

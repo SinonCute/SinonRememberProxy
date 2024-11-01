@@ -1,6 +1,5 @@
 package me.hiencao.sinonRemember.config
 
-import jdk.jfr.internal.SecuritySupport.getResourceAsStream
 import me.hiencao.sinonRemember.RedisConfig
 import me.hiencao.sinonRemember.ServerGroup
 import me.hiencao.sinonRemember.SinonRemember
@@ -9,8 +8,8 @@ import net.md_5.bungee.config.Configuration
 import net.md_5.bungee.config.ConfigurationProvider
 import net.md_5.bungee.config.YamlConfiguration
 import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
+import java.io.IOException
+import java.nio.file.Files
 
 
 object ConfigManager {
@@ -36,10 +35,10 @@ object ConfigManager {
 
         if (!configFile.exists()) {
             try {
-                val outputStream = FileOutputStream(configFile)
-                val `in`: InputStream = getResourceAsStream(fileName)
-                `in`.transferTo(outputStream)
-            } catch (e: Exception) {
+                plugin.getResourceAsStream("config.yml").use { `in` ->
+                    Files.copy(`in`, configFile.toPath())
+                }
+            } catch (e: IOException) {
                 e.printStackTrace()
             }
         }

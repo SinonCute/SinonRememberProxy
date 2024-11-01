@@ -25,6 +25,10 @@ object DataManager {
         storageProvider.load()
     }
 
+    fun reload() {
+        storageProvider.load()
+    }
+
     fun insertData(uuid: String, group: String, server: String) {
         storageProvider.insertData(uuid, group, server)
     }
