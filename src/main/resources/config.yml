@@ -1,0 +1,22 @@
+server_groups:
+  group1:
+    fallbacks:
+      - server3
+      - server4
+    servers:
+      - server1
+      - server2
+
+
+# This server will be used as a fallback for all groups when no other fallback server in the group is available
+fallback_server:
+  - server5
+  - server6
+
+# You can use the following storage types: REDIS, YAML
+storage_type: REDIS
+# Configuration for the REDIS storage
+redis:
+  host: localhost
+  port: 6379
+  password: password
