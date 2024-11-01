@@ -11,9 +11,6 @@ import java.net.InetSocketAddress
 import java.net.Socket
 
 class SinonRemember : Plugin() {
-
-    private lateinit var instance: SinonRemember
-
     override fun onEnable() {
         instance = this
         ConfigManager.init(this)
@@ -55,7 +52,9 @@ class SinonRemember : Plugin() {
 
 
     companion object {
+        @JvmStatic
         lateinit var instance: SinonRemember
+            private set
     }
 }
 

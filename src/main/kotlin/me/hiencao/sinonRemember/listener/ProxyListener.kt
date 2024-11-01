@@ -14,7 +14,6 @@ class ProxyListener : Listener {
     fun onServerConnectEvent(event: ServerConnectEvent) {
         val group = SinonRemember.instance.getServerGroup(event.target.name) ?: return
         val lastConnectedServer = DataManager.getData(event.player.uniqueId.toString(), group.id)
-
         event.target = lastConnectedServer
     }
 
