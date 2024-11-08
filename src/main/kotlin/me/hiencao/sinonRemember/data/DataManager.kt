@@ -33,7 +33,7 @@ object DataManager {
         storageProvider.insertData(uuid, group, server)
     }
 
-    fun getData(uuid: String, group: String): ServerInfo {
+    fun getData(uuid: String, group: String): ServerInfo? {
         return storageProvider.getData(uuid, group)
     }
 }

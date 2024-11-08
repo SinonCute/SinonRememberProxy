@@ -22,32 +22,25 @@ class SinonRemember : Plugin() {
     override fun onDisable() {
     }
 
-    fun getServerGroup(group: String): ServerGroup? {
-        return ConfigManager.serverGroups.firstOrNull { it.id == group }
+    fun getServerGroup(serverName: String): ServerGroup? {
+        return ConfigManager.serverGroups.firstOrNull { it.servers.contains(serverName) }
     }
 
-    fun findAvailableServer(serverName: String, fallbackIndex: Int = 0): ServerInfo {
-        if (ConfigManager.serverGroups.isEmpty() || ConfigManager.serverGroups.none { it.id == serverName }) {
-            return proxy.servers[ConfigManager.fallbackServer]
-                ?: throw IllegalStateException("Fallback server is not configured correctly.")
-        }
-
-        val primaryServer = proxy.servers[serverName] ?: throw IllegalStateException("Primary server is not configured correctly.")
-        val fallbackServers = ConfigManager.serverGroups.firstOrNull { it.id == serverName }?.fallbacks
-
-        try {
-            Socket().use { socket ->
-                socket.connect(InetSocketAddress(primaryServer.address.hostString, primaryServer.address.port), 1000)
+    fun isServerOnline(serverName: String): Boolean {
+        return proxy.servers[serverName]?.let {
+            try {
+                Socket().use { socket ->
+                    socket.connect(InetSocketAddress(it.address.hostString, it.address.port), 1000)
+                }
+                true
+            } catch (e: IOException) {
+                false
             }
-            return primaryServer
-        } catch (e: IOException) {
-            return if (fallbackServers != null && fallbackIndex < fallbackServers.size) {
-                findAvailableServer(fallbackServers[fallbackIndex], fallbackIndex + 1)
-            } else {
-                proxy.servers[ConfigManager.fallbackServer]
-                    ?: throw IllegalStateException("Fallback server is not configured correctly.")
-            }
-        }
+        } ?: false
+    }
+
+    fun findAvailableServer(servers: List<String>): ServerInfo? {
+        return servers.mapNotNull { proxy.getServerInfo(it) }.firstOrNull { isServerOnline(it.name) }
     }
 
 

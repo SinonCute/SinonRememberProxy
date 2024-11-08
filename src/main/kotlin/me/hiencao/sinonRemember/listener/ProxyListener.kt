@@ -12,15 +12,40 @@ import net.md_5.bungee.event.EventHandler
 class ProxyListener : Listener {
     @EventHandler
     fun onServerConnectEvent(event: ServerConnectEvent) {
-        val group = SinonRemember.instance.getServerGroup(event.target.name) ?: return
-        val lastConnectedServer = DataManager.getData(event.player.uniqueId.toString(), group.id)
-        event.target = lastConnectedServer
+        val player = event.player
+        val playerUUID = player.uniqueId.toString()
+        val fromServer = player.server?.info
+        val targetServer = event.target
+
+        val targetGroup = SinonRemember.instance.getServerGroup(targetServer.name) ?: return
+        val lastConnectedServer = DataManager.getData(playerUUID, targetGroup.id)
+
+        if (lastConnectedServer != null && fromServer != null &&
+            lastConnectedServer != targetServer && lastConnectedServer != fromServer) {
+
+            if (!SinonRemember.instance.isServerOnline(lastConnectedServer.name)) {
+                val fallback = SinonRemember.instance.findAvailableServer(targetGroup.fallbacks)
+                if (fallback != null) {
+                    event.target = fallback
+                    player.sendMessage(TextComponent("Server bạn online lần cuối không hoạt động. Đang chuyển hướng đến server phụ..."))
+                    return
+                } else {
+                    event.isCancelled = true
+                    player.sendMessage(TextComponent("Server hiện đang bảo trì. Vui lòng thử lại sau. Nếu bạn nghĩ đây là một lỗi, vui lòng liên hệ với quản trị viên."))
+                }
+            }
+
+            event.target = lastConnectedServer
+        }
     }
+
 
     @EventHandler
     fun onServerConnectedEvent(event: ServerConnectedEvent) {
-        val group = SinonRemember.instance.getServerGroup(event.server.info.name) ?: return
-        DataManager.insertData(event.player.uniqueId.toString(), group.id, event.server.info.name)
+        val playerUUID = event.player.uniqueId.toString()
+        val targetName = event.server.info.name
+        val group = SinonRemember.instance.getServerGroup(targetName) ?: return
+        DataManager.insertData(playerUUID, group.id, targetName)
     }
 
     @EventHandler
@@ -33,7 +58,7 @@ class ProxyListener : Listener {
             val group = SinonRemember.instance.getServerGroup(currentServer.name)
 
             if (group != null) {
-                val fallbackServer = SinonRemember.instance.findAvailableServer(group.fallbacks[0])
+                val fallbackServer = SinonRemember.instance.findAvailableServer(group.fallbacks)
 
                 if (fallbackServer != currentServer) {
                     event.cancelServer = fallbackServer

@@ -9,5 +9,5 @@ interface StorageProvider {
 
     fun load()
     fun insertData(uuid: String, group: String, server: String)
-    fun getData(uuid: String, group: String): ServerInfo
+    fun getData(uuid: String, group: String): ServerInfo?
 }

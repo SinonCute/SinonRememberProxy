@@ -37,21 +37,10 @@ class RedisStorage(override val plugin: SinonRemember) : StorageProvider {
         }
     }
 
-    override fun getData(uuid: String, group: String): ServerInfo {
+    override fun getData(uuid: String, group: String): ServerInfo? {
         return pool.resource.use { jedis ->
             val server = jedis.hget(REDIS_KEY + uuid, group);
-            if (server != null) {
-                plugin.findAvailableServer(server)
-            } else {
-                val groupServers = ConfigManager.serverGroups.firstOrNull { it.id == group }?.servers
-                    ?: throw IllegalStateException("Server group not found for group ID: $group")
-
-                if (groupServers.isNotEmpty()) {
-                    plugin.findAvailableServer(groupServers[0])
-                } else {
-                    throw IllegalStateException("No servers configured for group ID: $group")
-                }
-            }
+            plugin.proxy.getServerInfo(server) ?: return null
         }
     }
 }

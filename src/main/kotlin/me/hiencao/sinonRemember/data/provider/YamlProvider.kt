@@ -30,36 +30,21 @@ class YamlProvider(override val plugin: SinonRemember) : StorageProvider {
                 players[uuid] = mutableMapOf(group to server)
             }
         } catch (e: ClassCastException) {
-            if (players.containsKey(uuid)) {
-                players[uuid]?.set(group, server)
-            } else {
-                players[uuid] = mutableMapOf(group to server)
-            }
+            throw IllegalStateException("Failed to insert data for player with UUID: $uuid")
         }
         configData.set(uuid, players[uuid])
         ConfigManager.saveFile("players.yml", configData)
     }
 
-    override fun getData(uuid: String, group: String): ServerInfo {
-        return try {
-            if (players.containsKey(uuid)) {
-                val playerData = players[uuid]
-                if (playerData?.containsKey(group) == true) {
-                    return plugin.findAvailableServer(playerData[group]!!)
+    override fun getData(uuid: String, group: String): ServerInfo? {
+        if (players.containsKey(uuid)) {
+            val playerData = players[uuid]
+            if (playerData?.containsKey(group) == true) {
+                plugin.proxy.getServerInfo(playerData[group])?.let {
+                    return it
                 }
             }
-
-            val groupServers = ConfigManager.serverGroups.firstOrNull { it.id == group }?.servers
-                ?: throw IllegalStateException("Server group not found for group ID: $group")
-
-            if (groupServers.isNotEmpty()) {
-                plugin.findAvailableServer(groupServers[0])
-            } else {
-                throw IllegalStateException("No servers configured for group ID: $group")
-            }
-        } catch (e: IndexOutOfBoundsException) {
-            throw IllegalStateException("No servers configured for group ID: $group")
         }
+        return null
     }
-
 }

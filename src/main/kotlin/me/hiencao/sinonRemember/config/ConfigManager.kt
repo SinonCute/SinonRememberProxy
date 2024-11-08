@@ -18,8 +18,6 @@ object ConfigManager {
     lateinit var serverGroups: List<ServerGroup>
     lateinit var storageType: StorageType
     lateinit var redisConfig: RedisConfig
-    lateinit var fallbackServer: String
-
 
     fun init(plugin: SinonRemember) {
         this.plugin = plugin
@@ -35,7 +33,7 @@ object ConfigManager {
 
         if (!configFile.exists()) {
             try {
-                plugin.getResourceAsStream("config.yml").use { `in` ->
+                plugin.getResourceAsStream(fileName).use { `in` ->
                     Files.copy(`in`, configFile.toPath())
                 }
             } catch (e: IOException) {
@@ -53,6 +51,7 @@ object ConfigManager {
     }
 
     fun loadConfig() {
+        generateDefaultFile("players.yml")
         generateDefaultFile("config.yml")
         val config = loadFile("config.yml")
 
@@ -64,8 +63,6 @@ object ConfigManager {
                 section.getStringList("fallbacks")
             )
         }
-
-        fallbackServer = config.getString("fallback_server")
 
         storageType = StorageType.valueOf(config.getString("storage_type"))
 
